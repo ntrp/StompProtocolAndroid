@@ -139,7 +139,7 @@ public class StompClient {
     private void callSubscribers(StompMessage stompMessage) {
         String messageDestination = stompMessage.findHeader(StompHeader.DESTINATION);
         for (String dest : mSubscribers.keySet()) {
-            if (dest.equals(messageDestination)) {
+            if ((dest == null && messageDestination == null) || dest.equals(messageDestination)) {
                 for (Subscriber<? super StompMessage> subscriber : mSubscribers.get(dest)) {
                     subscriber.onNext(stompMessage);
                 }
@@ -155,6 +155,10 @@ public class StompClient {
     public void disconnect() {
         if (mMessagesSubscription != null) mMessagesSubscription.unsubscribe();
         mConnected = false;
+    }
+
+    public Observable<StompMessage> topic() {
+        return topic(null, null);
     }
 
     public Observable<StompMessage> topic(String destinationPath) {
